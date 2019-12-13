@@ -116,7 +116,8 @@
     </update>
 
     <select id="queryByParams" parameterType="CustomerOrderQuery" resultMap="BaseResultMap">
-        select <include refid="Base_Column_List"/>
+        select
+        <include refid="Base_Column_List"/>
         from t_customer_order
         <where>
             is_valid=1
@@ -130,6 +131,14 @@
                 and order_no=#{orderNo}
             </if>
         </where>
+    </select>
+
+    <select id="queryLastCustomerOrderByCusId" parameterType="int" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from t_customer_order
+        where is_valid=1 and state=1 and cus_id=#{cusId}
+        ORDER BY order_date desc
+        limit 1
     </select>
 
 </mapper>

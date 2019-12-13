@@ -1,21 +1,34 @@
 package com.shsxt.crm.service;
 
 import com.shsxt.base.BaseService;
+import com.shsxt.crm.db.dao.CustomerLossMapper;
 import com.shsxt.crm.db.dao.CustomerMapper;
+import com.shsxt.crm.db.dao.CustomerOrderMapper;
 import com.shsxt.crm.utils.AssertUtil;
 import com.shsxt.crm.vo.Customer;
+import com.shsxt.crm.vo.CustomerLoss;
+import com.shsxt.crm.vo.CustomerOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class CustomerService extends BaseService<Customer, Integer> {
 
     @Autowired
     private CustomerMapper customerMapper;
+
+    @Autowired
+    private CustomerOrderMapper customerOrderMapper;
+
+    @Autowired
+    private CustomerLossMapper customerLossMapper;
 
     /**
      * 添加客户
@@ -97,5 +110,61 @@ public class CustomerService extends BaseService<Customer, Integer> {
         AssertUtil.isTrue(null == id || null == customer, "待删除记录不存在");
         customer.setIsValid(0);
         AssertUtil.isTrue(update(customer) < 1, "客户删除失败");
+    }
+
+    /**
+     * 流失客户转移
+     *  将符合流失客户规则的客户数据转移到客户流失表
+     * 客户流失规则分析
+     *  1.录入的客户数据 距离当前超过半年
+     *  2.没有产生订单  或者最后一次下单时间距离当前超过半年
+     */
+    public void updateCustomerState() {
+        /**
+         * 1.查询符合规则的流失客户
+         *
+         * 2.执行转移操作
+         *    如果存在流失客户  执行数据转移
+         *        t_customer -->t_customer_loss
+         *           t_customer      更新state 0-->1   批量更新客户流失状态 根据客户id
+         *           t_customer_loss 数据从 t_customer 获取  批量添加客户流失数据到t_customer_loss
+         * 3.定时任务配置
+         */
+        // 查询符合规则的所有流失客户的集合
+        List<Customer> lossCustomers = customerMapper.queryLossCustomers();
+        Integer[] ids = null;
+        List<CustomerLoss> customerLosses = null;
+        if (!(CollectionUtils.isEmpty(lossCustomers))) {
+            // 如果存在流失客户  执行数据转移
+            ids = new Integer[lossCustomers.size()];
+            customerLosses = new ArrayList<>();
+            for (int i = 0; i < lossCustomers.size(); i++) {
+                Customer customer = lossCustomers.get(i);
+                ids[i] = customer.getId();
+                CustomerLoss customerLoss = new CustomerLoss();
+                // state:最终的流失状态  0-暂缓流失  1-确认流失
+                customerLoss.setState(0);
+                // 设置客户最后一次下单时间
+                CustomerOrder customerOrder = customerOrderMapper.queryLastCustomerOrderByCusId(ids[i]);
+                if (null != customerOrder) {
+                    customerLoss.setLastOrderTime(customerOrder.getOrderDate());
+                }
+                customerLoss.setIsValid(1);
+                customerLoss.setCusNo(customer.getKhno());
+                customerLoss.setCusName(customer.getName());
+                customerLoss.setCusManager(customer.getCusManager());
+                customerLoss.setCreateDate(new Date());
+                customerLoss.setUpdateDate(new Date());
+                customerLosses.add(customerLoss);
+            }
+            // t_customer      更新state 0-->1   批量更新客户流失状态 根据客户id
+            AssertUtil.isTrue(customerMapper.updateStateBatch(ids) != ids.length, "客户数据流转失败");
+            // t_customer_loss 数据从 t_customer 获取  批量添加客户流失数据到t_customer_loss
+            AssertUtil.isTrue(customerLossMapper.saveBatch(customerLosses) != customerLosses.size(), "客户数据流转失败");
+        }
+    }
+
+    public Customer queryCustomerByCusNo(String cusNo) {
+        return customerMapper.queryCustomerByCusNo(cusNo);
     }
 }
