@@ -37,6 +37,7 @@ function deleteRole() {
 }
 
 var zTreeObj;
+
 function doGrant() {
     var rows = $("#dg").datagrid("getSelections");
     if (rows.length == 0) {
@@ -48,10 +49,10 @@ function doGrant() {
         return;
     }
     $.ajax({
-        type:"post",
-        url:ctx+"/module/queryAllModules02?rid="+rows[0].id,
-        dataType:"json",
-        success:function (data) {
+        type: "post",
+        url: ctx + "/module/queryAllModules02?rid=" + rows[0].id,
+        dataType: "json",
+        success: function (data) {
             // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
             var setting = {
                 check: {
@@ -70,7 +71,7 @@ function doGrant() {
                     onCheck: zTreeOnCheck
                 }
             };
-            zTreeObj=$.fn.zTree.init($("#treeDemo"), setting, data);
+            zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, data);
         }
     });
 
@@ -81,25 +82,25 @@ function doGrant() {
 
 function zTreeOnCheck(event, treeId, treeNode) {
     //alert(treeNode.tId + ", " + treeNode.name + "," + treeNode.checked);
-    var nodes= zTreeObj.getCheckedNodes(true);
-    var midStr= "mid=";
-    if(nodes.length>0){
-        for(var i=0;i<nodes.length;i++){
-            if(i<nodes.length-1){
-                midStr=midStr+nodes[i].id+"&mid=";
-            }else{
-                midStr=midStr+nodes[i].id
+    var nodes = zTreeObj.getCheckedNodes(true);
+    var midStr = "mid=";
+    if (nodes.length > 0) {
+        for (var i = 0; i < nodes.length; i++) {
+            if (i < nodes.length - 1) {
+                midStr = midStr + nodes[i].id + "&mid=";
+            } else {
+                midStr = midStr + nodes[i].id
             }
         }
     }
 
     $.ajax({
-        type:"post",
+        type: "post",
         // 授权接口地址
-        url:ctx+"/role/addGrant",
-        data:midStr+"&rid="+$("#rid").val(),
-        dataType:"json",
-        success:function (data) {
+        url: ctx + "/role/addGrant",
+        data: midStr + "&rid=" + $("#rid").val(),
+        dataType: "json",
+        success: function (data) {
             console.log(data);
         }
     })

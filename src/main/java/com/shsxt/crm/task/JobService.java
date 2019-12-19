@@ -12,7 +12,7 @@ public class JobService {
     @Resource
     private CustomerService customerService;
 
-    @Scheduled(cron = "0 0 18 20 * ? ")
+    // @Scheduled(cron = "0 0 18 20 * ? ")
     public void job() {
         customerService.updateCustomerState();
     }
