@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 @RequestMapping("user")
@@ -106,5 +107,11 @@ public class UserController extends BaseController {
     public ResultInfo delete(@RequestParam(name = "id") Integer userId) {
         userService.deleteUser(userId);
         return success("用户数据删除成功");
+    }
+
+    @RequestMapping("queryUsersByCustomerManager")
+    @ResponseBody
+    public List<Map<String,Object>> queryUsersByCustomerManager(){
+        return  userService.queryUsersByCustomerManager();
     }
 }

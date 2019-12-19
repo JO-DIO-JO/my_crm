@@ -330,4 +330,18 @@
         where is_valid=1 and khno=#{cusNo}
     </select>
 
+    <select id="countCustomerLevelGroupByLevel" resultType="java.util.Map">
+        SELECT
+            level,
+            count(id) AS total
+        FROM
+            t_customer
+        WHERE
+            is_valid = 1
+        AND state = 0
+        GROUP BY
+            LEVEL
+        ORDER BY total desc
+    </select>
+
 </mapper>

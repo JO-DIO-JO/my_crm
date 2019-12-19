@@ -66,7 +66,7 @@
                 <td>分配人：</td>
                 <td><input type="text" class="easyui-combobox" id="assigner" name="assigner"
                           valueField="id" textField="trueName"
-                          url="${ctx}/queryUsersByCustomerManager" panelHeight="auto" />
+                          url="${ctx}/user/queryUsersByCustomerManager" panelHeight="auto" />
                     <font color="red">*</font>
                 </td>
 

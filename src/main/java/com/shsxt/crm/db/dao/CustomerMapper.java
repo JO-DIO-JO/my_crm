@@ -4,6 +4,7 @@ import com.shsxt.base.BaseMapper;
 import com.shsxt.crm.vo.Customer;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CustomerMapper extends BaseMapper<Customer, Integer> {
 
@@ -14,5 +15,7 @@ public interface CustomerMapper extends BaseMapper<Customer, Integer> {
     int updateStateBatch(Integer[] ids);
 
     Customer queryCustomerByCusNo(String cusNo);
+
+    List<Map<String,Object>> countCustomerLevelGroupByLevel();
 
 }

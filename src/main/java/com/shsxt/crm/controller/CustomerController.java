@@ -62,4 +62,10 @@ public class CustomerController extends BaseController {
         model.addAttribute("customer", customerService.queryById(id));
         return "customer_order";
     }
+
+    @RequestMapping("countCustomerLevelGroupByLevel")
+    @ResponseBody
+    public Map<String, Object> countCustomerLevelGroupByLevel() {
+        return customerService.countCustomerLevelGroupByLevel();
+    }
 }

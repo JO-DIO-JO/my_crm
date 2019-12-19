@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class CustomerService extends BaseService<Customer, Integer> {
@@ -166,5 +164,19 @@ public class CustomerService extends BaseService<Customer, Integer> {
 
     public Customer queryCustomerByCusNo(String cusNo) {
         return customerMapper.queryCustomerByCusNo(cusNo);
+    }
+
+    public Map<String, Object> countCustomerLevelGroupByLevel() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        List<Map<String, Object>> list = customerMapper.countCustomerLevelGroupByLevel();
+        List<String> data1 = new ArrayList<String>();
+        List<Integer> data2 = new ArrayList<Integer>();
+        list.forEach(m -> {
+            data1.add(m.get("level").toString());
+            data2.add(Integer.parseInt(m.get("total").toString()));
+        });
+        result.put("data1", data1);
+        result.put("data2", data2);
+        return result;
     }
 }

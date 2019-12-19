@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService extends BaseService<User, Integer> {
@@ -183,4 +184,7 @@ public class UserService extends BaseService<User, Integer> {
         AssertUtil.isTrue(StringUtils.isBlank(user.getTrueName()), "请输入真实名称");
     }
 
+    public List<Map<String, Object>> queryUsersByCustomerManager() {
+        return userMapper.queryUsersByCustomerManager();
+    }
 }
